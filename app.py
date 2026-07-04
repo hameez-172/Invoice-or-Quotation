@@ -4,7 +4,7 @@ from datetime import date
 import random
 import os
 
-st.set_page_config(page_title="Professional Invoice Generator")
+st.set_page_config(page_title="Professional Invoice Generator", layout="centered")
 
 class InvoicePDF(FPDF):
     def header(self):
@@ -33,13 +33,13 @@ class InvoicePDF(FPDF):
         self.set_y(268)
         self.set_text_color(255, 255, 255)
         self.set_font("Arial", "", 7)
-        footer = (
+        footer_text = (
             "Lahore Office: D Block Nawab Town, Lahore    "
-            "Okara Office: Adjacent Ibn-e-Sina Lab, Opposite DHQ, Okara\n"
-            "Pindi Office: Commercial Market, Rawalpindi    "
+            "Okara Office: Adjacent Ibn-e-Sina Lab, Opposite DHQ, Okara | "
+            "Pindi Office: Commercial Market, Rawalpindi | "
             "Bahawalpur Office: Model Town C, Bahawalpur"
         )
-        self.multi_cell(0, 4, footer, align="C")
+        self.multi_cell(0, 4, footer_text, align="C")
         self.set_y(281)
         self.cell(0, 4, "0300-7303020, 0334-7303020     E-mail: munir.badar1@gmail.com", align="C")
 
@@ -64,15 +64,15 @@ if st.button("Add Product"):
     st.success("Product Added")
 
 if st.session_state.products:
-    st.subheader("Products")
+    st.subheader("Products List")
     for i, p in enumerate(st.session_state.products, 1):
-        st.write(f"{i}. {p['name']} | {p['qty']} x {p['price']}")
+        st.write(f"{i}. {p['name']} - {p['qty']} x {p['price']}")
 
 if st.button("Generate PDF"):
     pdf = InvoicePDF()
     pdf.add_page()
     
-    # Quotation No and Date
+    # Header Details
     pdf.set_font("Arial", "", 10)
     number = f"QTR/BD/{random.randint(10000,99999)}"
     pdf.set_xy(15, 45)
@@ -80,71 +80,59 @@ if st.button("Generate PDF"):
     pdf.set_xy(160, 45)
     pdf.cell(0, 5, f"Date: {date.today().strftime('%d/%m/%Y')}")
 
-    # Blue lines
     pdf.set_draw_color(0, 153, 224)
     pdf.line(15, 50, 55, 50)
     pdf.line(155, 50, 195, 50)
 
-    # Client Name
     pdf.set_xy(15, 58)
-    pdf.set_font("Arial", "B", 11)
-    pdf.cell(0, 6, client_name)
-
-    # Document Title
-    pdf.set_xy(0, 65)
     pdf.set_font("Arial", "B", 12)
-    pdf.cell(210, 8, doc_type, align="C")
+    pdf.cell(0, 6, f"To: {client_name}")
 
-    # Table Header
-    y = 82
-    pdf.set_xy(30, y)
-    pdf.set_font("Arial", "B", 8)
-    pdf.cell(15, 8, "SR #", 1, 0, "C")
-    pdf.cell(45, 8, "PRODUCT", 1)
-    pdf.cell(35, 8, "DESCRIPTION", 1)
-    pdf.cell(15, 8, "QTY", 1, 0, "C")
-    pdf.cell(25, 8, "PRICE", 1, 0, "C")
-    pdf.cell(25, 8, "TOTAL", 1, 1, "C")
+    pdf.set_xy(0, 68)
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(210, 8, doc_type.upper(), align="C")
 
-    # Products
-    pdf.set_font("Arial", "", 8)
+    # Table
+    y = 85
+    pdf.set_xy(25, y)
+    pdf.set_font("Arial", "B", 9)
+    pdf.set_fill_color(240, 240, 240)
+    pdf.cell(15, 8, "SR #", 1, 0, "C", True)
+    pdf.cell(45, 8, "PRODUCT", 1, 0, "C", True)
+    pdf.cell(40, 8, "DESCRIPTION", 1, 0, "C", True)
+    pdf.cell(15, 8, "QTY", 1, 0, "C", True)
+    pdf.cell(25, 8, "PRICE", 1, 0, "C", True)
+    pdf.cell(25, 8, "TOTAL", 1, 1, "C", True)
+
+    pdf.set_font("Arial", "", 9)
     grand_total = 0
     for i, p in enumerate(st.session_state.products, 1):
         total = p["qty"] * p["price"]
         grand_total += total
-        pdf.set_x(30)
+        pdf.set_x(25)
         pdf.cell(15, 8, str(i), 1, 0, "C")
         pdf.cell(45, 8, p["name"], 1)
-        pdf.cell(35, 8, p["desc"], 1)
+        pdf.cell(40, 8, p["desc"], 1)
         pdf.cell(15, 8, str(p["qty"]), 1, 0, "C")
         pdf.cell(25, 8, f"{p['price']:.0f}", 1, 0, "C")
         pdf.cell(25, 8, f"{total:.0f}", 1, 1, "C")
 
-    # Grand Total
-    pdf.set_x(120)
+    pdf.set_x(125)
+    pdf.set_font("Arial", "B", 10)
+    pdf.cell(40, 8, "Grand Total", 1, 0, "C", True)
+    pdf.cell(25, 8, str(grand_total), 1, 1, "C", True)
+
+    # Footer/Terms
+    pdf.set_xy(15, 200)
+    pdf.set_font("Arial", "B", 10)
+    pdf.cell(0, 5, "Terms & Conditions:", ln=1)
+    pdf.set_font("Arial", "", 9)
+    pdf.multi_cell(0, 5, "1. 80% advance and 20% at the time of delivery.\n2. Prices are subject to change without notice.")
+
+    pdf.set_xy(15, 230)
     pdf.set_font("Arial", "B", 9)
-    pdf.cell(40, 8, "Grand Total", 1, 0, "C")
-    pdf.cell(25, 8, str(grand_total), 1, 1, "C")
-
-    # Footer section
-    pdf.set_xy(15, 145)
-    pdf.set_font("Arial", "B", 10)
-    pdf.cell(0, 5, "Terms & Conditions:")
-    pdf.set_xy(15, 152)
-    pdf.set_font("Arial", "", 10)
-    pdf.multi_cell(0, 6, "80% advance and 20% at the time of delivery.")
-
-    pdf.set_xy(15, 175)
-    pdf.set_font("Arial", "", 9)
-    pdf.multi_cell(0, 5, "Regards,\nBadar Diagnostics &\nMedical Equipment\nLahore")
-
-    pdf.set_xy(15, 205)
-    pdf.set_font("Arial", "B", 10)
-    pdf.cell(0, 5, "Account Details :", ln=1)
-    pdf.set_font("Arial", "", 9)
+    pdf.cell(0, 5, "Regards,", ln=1)
     pdf.cell(0, 5, "Badar Diagnostics & Medical Equipment", ln=1)
-    pdf.cell(0, 5, "Faysal Bank", ln=1)
-    pdf.cell(0, 5, "015500700005585", ln=1)
 
     pdf.output("final.pdf")
     with open("final.pdf", "rb") as file:
