@@ -17,17 +17,17 @@ class InvoicePDF(FPDF):
         self.set_fill_color(0, 153, 224)
         self.rect(35, 8, 165, 8, "F")
 
+        
         # Logo
-        if os.path.exists("logo.png"):
-            self.image("logo.png", x=12, y=10, w=20)
+if os.path.exists("logo.png"):
+    self.image("logo.png", x=8, y=10, w=30)
 
-        # Company Name
-        self.set_xy(40, 20)
-        self.set_font("Arial", "B", 20)
-        self.set_text_color(20, 40, 80)
-        self.cell(0, 10, "Badar Diagnostics & Medical Equipments")
-
-        self.set_text_color(0, 0, 0)
+# Company Name
+self.set_xy(42, 20)
+self.set_font("Arial", "B", 20)
+self.set_text_color(20, 40, 80)
+self.cell(0, 10, "Badar Diagnostics & Medical Equipments")
+self.set_text_color(0, 0, 0)
 
     def footer(self):
 
@@ -108,7 +108,14 @@ if st.button("Generate PDF"):
 
     pdf = InvoicePDF()
     pdf.add_page()
-
+# Watermark Logo
+if os.path.exists("watermark.png"):
+    pdf.image(
+        "watermark.png",
+        x=40,
+        y=120,
+        w=130,
+    )
     # Quotation No and Date
     pdf.set_font("Arial", "", 10)
 
