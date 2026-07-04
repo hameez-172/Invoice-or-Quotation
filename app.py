@@ -2,78 +2,243 @@ import streamlit as st
 from fpdf import FPDF
 from datetime import date
 import random
+import os
 
-# FPDF2 Class
+st.set_page_config(page_title="Professional Invoice Generator")
+
+
 class InvoicePDF(FPDF):
+
     def header(self):
-        # Top Blue Strip
+        # Top blue strips
+        self.set_fill_color(0, 51, 102)
+        self.rect(10, 8, 22, 8, "F")
+
         self.set_fill_color(0, 153, 224)
-        self.rect(0, 0, 210, 25, 'F')
+        self.rect(35, 8, 165, 8, "F")
+
+        # Logo
+        if os.path.exists("logo.png"):
+            self.image("logo.png", x=12, y=10, w=20)
+
         # Company Name
-        self.set_text_color(255, 255, 255)
-        self.set_font('Arial', 'B', 18)
-        self.cell(0, 15, 'Badar Diagnostics & Medical Equipments', 0, 1, 'R')
-        self.ln(10)
+        self.set_xy(40, 20)
+        self.set_font("Arial", "B", 20)
+        self.set_text_color(20, 40, 80)
+        self.cell(0, 10, "Badar Diagnostics & Medical Equipments")
+
         self.set_text_color(0, 0, 0)
 
     def footer(self):
-        self.set_y(-37)
-        # Bottom Blue Strip
+
+        self.set_fill_color(0, 51, 102)
+        self.rect(10, 265, 190, 15, "F")
+
         self.set_fill_color(0, 153, 224)
-        self.rect(0, 260, 210, 37, 'F')
+        self.rect(10, 280, 190, 8, "F")
+
+        self.set_y(268)
+
         self.set_text_color(255, 255, 255)
-        self.set_font('Arial', '', 8)
-        self.multi_cell(0, 5, 'Lahore Office: D Block Nawab Town, Lahore | Okara Office: Adjacent Ibn-e-Sina Lab, Opposite DHQ, Okara\nPindi Office: Commercial Market, Rawalpindi. | Bahawalpur Office: Model Town C, Bahawalpur\n0300-7303020, 0334-7303020 E-mail: munir.badar1@gmail.com', 0, 'C')
+        self.set_font("Arial", "", 7)
 
-# App UI
-st.title("📄 Professional Generator")
+        footer = (
+            "Lahore Office: D Block Nawab Town, Lahore    "
+            "Okara Office: Adjacent Ibn-e-Sina Lab, Opposite DHQ, Okara\n"
+            "Pindi Office: Commercial Market, Rawalpindi    "
+            "Bahawalpur Office: Model Town C, Bahawalpur"
+        )
 
-if 'products' not in st.session_state: st.session_state.products = []
+        self.multi_cell(0, 4, footer, align="C")
 
-doc_type = st.selectbox("Document Type", ["Quotation", "Invoice"])
+        self.set_y(281)
+
+        self.cell(
+            0,
+            4,
+            "0300-7303020, 0334-7303020     E-mail: munir.badar1@gmail.com",
+            align="C",
+        )
+
+
+st.title("📄 Professional Invoice / Quotation Generator")
+
+if "products" not in st.session_state:
+    st.session_state.products = []
+
+doc_type = st.selectbox(
+    "Document Type",
+    ["Quotation", "Invoice"]
+)
+
 client_name = st.text_input("Client Name")
 
-p_name = st.text_input("Product")
+st.subheader("Add Product")
+
+p_name = st.text_input("Product Name")
 p_desc = st.text_input("Description")
-p_qty = st.number_input("Qty", 1)
-p_price = st.number_input("Unit Price", 0.0)
+p_qty = st.number_input("Quantity", min_value=1, value=1)
+p_price = st.number_input("Unit Price", min_value=0.0)
 
 if st.button("Add Product"):
-    st.session_state.products.append({"name": p_name, "desc": p_desc, "qty": p_qty, "price": p_price})
 
-if st.button("Generate Final PDF"):
+    st.session_state.products.append(
+        {
+            "name": p_name,
+            "desc": p_desc,
+            "qty": p_qty,
+            "price": p_price,
+        }
+    )
+
+    st.success("Product Added")
+
+
+if st.session_state.products:
+    st.subheader("Products")
+
+    for i, p in enumerate(st.session_state.products, 1):
+        st.write(
+            f"{i}. {p['name']} | "
+            f"{p['qty']} x {p['price']}"
+        )
+
+
+if st.button("Generate PDF"):
+
     pdf = InvoicePDF()
     pdf.add_page()
-    
-    # Auto Fields
-    pdf.set_font("Arial", 'B', 10)
-    pdf.cell(100, 10, f"No. QTR/BD/{random.randint(1000, 9999)}", 0, 0)
-    pdf.cell(0, 10, f"Date: {date.today().strftime('%d/%m/%Y')}", 0, 1, 'R')
-    
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, client_name, 0, 1)
-    pdf.cell(0, 10, doc_type, 0, 1, 'C')
-    
+
+    # Quotation No and Date
+    pdf.set_font("Arial", "", 10)
+
+    number = f"QTR/BD/{random.randint(10000,99999)}"
+
+    pdf.set_xy(15, 45)
+    pdf.cell(0, 5, f"No. {number}")
+
+    pdf.set_xy(160, 45)
+    pdf.cell(
+        0,
+        5,
+        f"Date: {date.today().strftime('%d/%m/%Y')}"
+    )
+
+    # Blue lines
+    pdf.set_draw_color(0, 153, 224)
+    pdf.line(15, 50, 55, 50)
+    pdf.line(155, 50, 195, 50)
+
+    # Client Name
+    pdf.set_xy(15, 58)
+    pdf.set_font("Arial", "B", 11)
+    pdf.cell(0, 6, client_name)
+
+    # Document Title
+    pdf.set_xy(0, 65)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(210, 8, doc_type, align="C")
+
     # Table Header
-    pdf.set_fill_color(220, 220, 220)
-    pdf.set_font("Arial", 'B', 10)
-    pdf.cell(10, 10, "SR#", 1, 0, 'C', 1)
-    pdf.cell(40, 10, "PRODUCT", 1, 0, 'C', 1)
-    pdf.cell(60, 10, "DESCRIPTION", 1, 0, 'C', 1)
-    pdf.cell(20, 10, "QTY", 1, 0, 'C', 1)
-    pdf.cell(30, 10, "PRICE", 1, 0, 'C', 1)
-    pdf.cell(30, 10, "TOTAL", 1, 1, 'C', 1)
-    
-    # Rows
+    y = 82
+
+    pdf.set_xy(30, y)
+
+    pdf.set_font("Arial", "B", 8)
+
+    pdf.cell(15, 8, "SR #", 1, 0, "C")
+    pdf.cell(45, 8, "PRODUCT", 1)
+    pdf.cell(35, 8, "DESCRIPTION", 1)
+    pdf.cell(15, 8, "QTY", 1, 0, "C")
+    pdf.cell(25, 8, "PRICE", 1, 0, "C")
+    pdf.cell(25, 8, "TOTAL", 1, 1, "C")
+
+    # Products
+    pdf.set_font("Arial", "", 8)
+
+    grand_total = 0
+
     for i, p in enumerate(st.session_state.products, 1):
-        total = p['qty'] * p['price']
-        pdf.cell(10, 10, str(i), 1, 0, 'C')
-        pdf.cell(40, 10, p['name'], 1)
-        pdf.cell(60, 10, p['desc'], 1)
-        pdf.cell(20, 10, str(p['qty']), 1, 0, 'C')
-        pdf.cell(30, 10, str(p['price']), 1, 0, 'C')
-        pdf.cell(30, 10, str(total), 1, 1, 'C')
-        
+
+        total = p["qty"] * p["price"]
+        grand_total += total
+
+        pdf.set_x(30)
+
+        pdf.cell(15, 8, str(i), 1, 0, "C")
+        pdf.cell(45, 8, p["name"], 1)
+        pdf.cell(35, 8, p["desc"], 1)
+        pdf.cell(15, 8, str(p["qty"]), 1, 0, "C")
+        pdf.cell(25, 8, f"{p['price']:.0f}", 1, 0, "C")
+        pdf.cell(25, 8, f"{total:.0f}", 1, 1, "C")
+
+    # Grand Total
+    pdf.set_x(120)
+    pdf.set_font("Arial", "B", 9)
+    pdf.cell(40, 8, "Grand Total", 1, 0, "C")
+    pdf.cell(25, 8, str(grand_total), 1, 1, "C")
+
+    # Terms
+    pdf.set_xy(15, 145)
+
+    pdf.set_font("Arial", "B", 10)
+    pdf.cell(0, 5, "Terms & Conditions:")
+
+    pdf.set_xy(15, 152)
+    pdf.set_font("Arial", "", 10)
+
+    pdf.multi_cell(
+        0,
+        6,
+        "80% advance and 20% at the time of delivery."
+    )
+
+    # Regards
+    pdf.set_xy(15, 175)
+
+    pdf.set_font("Arial", "", 9)
+
+    pdf.multi_cell(
+        0,
+        5,
+        "Regards,\n"
+        "Badar Diagnostics &\n"
+        "Medical Equipment\n"
+        "Lahore"
+    )
+
+    # Account Details
+    pdf.set_xy(15, 205)
+
+    pdf.set_font("Arial", "B", 10)
+    pdf.cell(0, 5, "Account Details :", ln=1)
+
+    pdf.set_font("Arial", "", 9)
+
+    pdf.cell(
+        0,
+        5,
+        "Badar Diagnostics & Medical Equipment",
+        ln=1,
+    )
+    pdf.cell(0, 5, "Faysal Bank", ln=1)
+    pdf.cell(0, 5, "015500700005585", ln=1)
+
+    # Watermark
+    if os.path.exists("watermark.png"):
+        pdf.image(
+            "watermark.png",
+            x=55,
+            y=140,
+            w=90,
+        )
+
     pdf.output("final.pdf")
-    with open("final.pdf", "rb") as f:
-        st.download_button("Download PDF", f, file_name="final.pdf")
+
+    with open("final.pdf", "rb") as file:
+        st.download_button(
+            "📥 Download PDF",
+            file,
+            file_name=f"{doc_type}.pdf",
+            mime="application/pdf",
+        )
