@@ -128,30 +128,30 @@ if st.button("Generate PDF"):
     pdf.cell(40, 8, "Grand Total", 1, 0, "C", True)
     pdf.cell(25, 8, str(grand_total), 1, 1, "C", True)
 
-    # Dynamic Terms & Account Details
-    y_pos = pdf.get_y() + 10
+    # Left Section: Terms & Account Details
+    y_pos = pdf.get_y() + 15
     pdf.set_xy(15, y_pos)
-    pdf.set_font("Arial", "B", 10)
-    pdf.cell(0, 5, "Terms & Conditions:", ln=1)
-    pdf.set_font("Arial", "", 9)
-    pdf.multi_cell(0, 5, terms_input)
     
-    y_pos = pdf.get_y() + 5
-    pdf.set_xy(15, y_pos)
-    pdf.set_font("Arial", "B", 10)
-    pdf.cell(0, 5, "Account Details:", ln=1)
-    pdf.set_font("Arial", "", 9)
-    pdf.multi_cell(0, 5, account_input)
+    # Terms (Size 12)
+    pdf.set_font("Arial", "B", 13)
+    pdf.cell(0, 8, "Terms & Conditions:", ln=1)
+    pdf.set_font("Arial", "", 12)
+    pdf.multi_cell(100, 7, terms_input)
+    
+    # Account Details (Size 12)
+    pdf.ln(5)
+    pdf.set_font("Arial", "B", 13)
+    pdf.cell(0, 8, "Account Details:", ln=1)
+    pdf.set_font("Arial", "", 12)
+    pdf.multi_cell(100, 7, account_input)
 
-    # Stamp & Signature
-    y_pos = pdf.get_y() + 10
-    if os.path.exists("stamp.jpeg"):
-        pdf.image("stamp.png", x=140, y=y_pos, w=40)
+    # Right Section: Stamp & Signature
+    if os.path.exists("stamp.png"):
+        pdf.image("stamp.png", x=140, y=y_pos + 10, w=50)
     
-    pdf.set_xy(15, y_pos + 15)
-    pdf.set_font("Arial", "B", 9)
-    pdf.cell(0, 5, "Regards,", ln=1)
-    pdf.cell(0, 5, "Badar Diagnostics & Medical Equipment", ln=1)
+    pdf.set_xy(140, y_pos + 65)
+    pdf.set_font("Arial", "B", 11)
+    pdf.cell(50, 6, "Authorized Signatory", align="C")
 
     pdf.output("final.pdf")
     with open("final.pdf", "rb") as file:
