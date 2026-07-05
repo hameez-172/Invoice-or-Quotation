@@ -15,7 +15,7 @@ class InvoicePDF(FPDF):
         self.rect(35, 8, 165, 8, "F")
         
         # Logo
-        if os.path.exists("logo.png"):
+        if os.path.exists("lo.png"):
             self.image("logo.png", x=8, y=10, w=30)
 
         # Company Name
