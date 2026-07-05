@@ -14,9 +14,9 @@ class InvoicePDF(FPDF):
         self.set_fill_color(0, 153, 224)
         self.rect(35, 8, 165, 8, "F")
         
-        # Logo
+        # Logo - Adjusted y to 17 to place it below the header strips
         if os.path.exists("lo.png"):
-            self.image("lo.png", x=8, y=10, w=30)
+            self.image("lo.png", x=8, y=17, w=30)
 
         # Company Name
         self.set_xy(42, 20)
