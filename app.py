@@ -128,35 +128,41 @@ if st.button("Generate PDF"):
     pdf.cell(40, 8, "Grand Total", 1, 0, "C", True)
     pdf.cell(25, 8, str(grand_total), 1, 1, "C", True)
 
-    # Lower Section: Terms, Account Details, Stamp/Sign
-    y_pos = pdf.get_y() + 15
+    # Footer section alignment
+    pdf.set_y(210) 
     
-    # Left Column (Terms & Account)
-    pdf.set_xy(15, y_pos)
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 6, "Terms & Conditions:", ln=1)
-    pdf.set_font("Arial", "", 11)
-    pdf.multi_cell(100, 6, terms_input)
+    # Left Column
+    pdf.set_x(15)
+    pdf.set_font("Arial", "B", 11)
+    pdf.cell(0, 5, "Terms & Conditions:", ln=1)
+    pdf.set_font("Arial", "", 10)
+    pdf.set_x(15)
+    pdf.multi_cell(90, 5, terms_input)
     
-    pdf.ln(5)
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 6, "Regards,", ln=1)
-    pdf.cell(0, 6, "Badar Diagnostics & Medical Equipment", ln=1)
-    pdf.cell(0, 6, "Lahore", ln=1)
+    pdf.ln(2)
+    pdf.set_x(15)
+    pdf.set_font("Arial", "B", 11)
+    pdf.cell(0, 5, "Regards,", ln=1)
+    pdf.set_x(15)
+    pdf.cell(0, 5, "Badar Diagnostics & Medical Equipment", ln=1)
+    pdf.set_x(15)
+    pdf.cell(0, 5, "Lahore", ln=1)
     
-    pdf.ln(5)
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 6, "Account Details:", ln=1)
-    pdf.set_font("Arial", "", 11)
-    pdf.multi_cell(100, 6, account_input)
+    pdf.ln(2)
+    pdf.set_x(15)
+    pdf.set_font("Arial", "B", 11)
+    pdf.cell(0, 5, "Account Details:", ln=1)
+    pdf.set_font("Arial", "", 10)
+    pdf.set_x(15)
+    pdf.multi_cell(90, 5, account_input)
 
     # Right Column (Stamp & Signature)
     if os.path.exists("stamp.png"):
-        pdf.image("stamp.png", x=140, y=y_pos + 10, w=45)
+        pdf.image("stamp.png", x=140, y=215, w=45)
     
-    pdf.set_xy(140, y_pos + 60)
-    pdf.set_font("Arial", "B", 11)
-    pdf.cell(50, 6, "Authorized Signatory", align="C")
+    pdf.set_xy(140, 255)
+    pdf.set_font("Arial", "B", 10)
+    pdf.cell(50, 5, "Authorized Signatory", align="C")
 
     pdf.output("final.pdf")
     with open("final.pdf", "rb") as file:
