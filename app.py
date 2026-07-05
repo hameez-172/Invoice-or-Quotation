@@ -14,7 +14,7 @@ class InvoicePDF(FPDF):
         self.set_fill_color(0, 153, 224)
         self.rect(35, 8, 165, 8, "F")
         
-        # Logo - Adjusted y to 17 to place it below the header strips
+        # Logo
         if os.path.exists("lo.png"):
             self.image("lo.png", x=8, y=17, w=30)
 
@@ -44,6 +44,12 @@ class InvoicePDF(FPDF):
         self.cell(0, 4, "0300-7303020, 0334-7303020     E-mail: munir.badar1@gmail.com", align="C")
 
 st.title("📄 Professional Invoice / Quotation Generator")
+
+# Sidebar for dynamic content
+with st.sidebar:
+    st.header("Document Settings")
+    terms_input = st.text_area("Terms & Conditions", "1. 80% advance and 20% at the time of delivery.\n2. Prices are subject to change without notice.")
+    account_input = st.text_area("Account Details", "Bank Name: \nAccount Title: \nAccount No: ")
 
 if "products" not in st.session_state:
     st.session_state.products = []
@@ -122,14 +128,27 @@ if st.button("Generate PDF"):
     pdf.cell(40, 8, "Grand Total", 1, 0, "C", True)
     pdf.cell(25, 8, str(grand_total), 1, 1, "C", True)
 
-    # Footer/Terms
-    pdf.set_xy(15, 200)
+    # Dynamic Terms & Account Details
+    y_pos = pdf.get_y() + 10
+    pdf.set_xy(15, y_pos)
     pdf.set_font("Arial", "B", 10)
     pdf.cell(0, 5, "Terms & Conditions:", ln=1)
     pdf.set_font("Arial", "", 9)
-    pdf.multi_cell(0, 5, "1. 80% advance and 20% at the time of delivery.\n2. Prices are subject to change without notice.")
+    pdf.multi_cell(0, 5, terms_input)
+    
+    y_pos = pdf.get_y() + 5
+    pdf.set_xy(15, y_pos)
+    pdf.set_font("Arial", "B", 10)
+    pdf.cell(0, 5, "Account Details:", ln=1)
+    pdf.set_font("Arial", "", 9)
+    pdf.multi_cell(0, 5, account_input)
 
-    pdf.set_xy(15, 230)
+    # Stamp & Signature
+    y_pos = pdf.get_y() + 10
+    if os.path.exists("stamp.png"):
+        pdf.image("stamp.png", x=140, y=y_pos, w=40)
+    
+    pdf.set_xy(15, y_pos + 15)
     pdf.set_font("Arial", "B", 9)
     pdf.cell(0, 5, "Regards,", ln=1)
     pdf.cell(0, 5, "Badar Diagnostics & Medical Equipment", ln=1)
