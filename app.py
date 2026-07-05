@@ -145,7 +145,7 @@ if st.button("Generate PDF"):
 
     # Stamp & Signature
     y_pos = pdf.get_y() + 10
-    if os.path.exists("stamp.png"):
+    if os.path.exists("stamp.jpeg"):
         pdf.image("stamp.png", x=140, y=y_pos, w=40)
     
     pdf.set_xy(15, y_pos + 15)
